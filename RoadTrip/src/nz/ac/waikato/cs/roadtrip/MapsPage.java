@@ -3,6 +3,7 @@ package nz.ac.waikato.cs.roadtrip;
 import nz.ac.waikato.cs.roadtrip.controllers.MapsController;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
 import nz.ac.waikato.cs.roadtrip.helpers.NavigationDrawerHelper;
+import nz.ac.waikato.cs.roadtrip.helpers.NavigationHelper;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
