@@ -6,5 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="default_messageBox_title">Error</string>
     <string name="ok">OK</string>
+    <string name="title_activity_trip_page">TripPage</string>
+    <string name="title_activity_settings_page">SettingsPage</string>
 
 </resources>

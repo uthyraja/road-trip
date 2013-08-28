@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="maps_page_menu">
+        <item>New Trip</item>
         <item>Settings</item>
-        <item>About us</item>
     </string-array>
     
 </resources>
