@@ -1,12 +1,20 @@
 package nz.ac.waikato.cs.roadtrip.helpers;
 
+import nz.ac.waikato.cs.roadtrip.listeners.DrawerItemClickListener;
+import android.app.Activity;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class NavigationDrawerHelper {
-	public static void Initialise(ListView listView, String[] items){
+
+	public static void Initialise(Activity current, int listView, int array) {
+		ListView mDrawerList = (ListView) current.findViewById(listView);
+        String[] list = current.getResources().getStringArray(array);
+        
         // Set the adapter for the list view
-        //listView.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, mPlanetTitles));
+        mDrawerList.setAdapter(new ArrayAdapter<String>(current, android.R.layout.simple_list_item_1, list));
+        
         // Set the list's click listener
-        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 	}
 }
