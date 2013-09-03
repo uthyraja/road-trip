@@ -8,5 +8,6 @@
     <string name="ok">OK</string>
     <string name="title_activity_trip_page">TripPage</string>
     <string name="title_activity_settings_page">SettingsPage</string>
+    <string name="search_title">Search Title</string>
 
 </resources>

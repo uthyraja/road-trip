@@ -52,4 +52,9 @@ public class MapsController {
 	public void animateToPossition(Point point) throws Exception{
 		animateToPossition(point, defaultZoom);
 	}
+
+	public Point getCurrentPossition() throws Exception {
+		// TODO Auto-generated method stub
+		return location.GetCurrent();
+	}
 }
