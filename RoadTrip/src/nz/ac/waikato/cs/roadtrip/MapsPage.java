@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -24,17 +25,20 @@ import nz.ac.waikato.cs.roadtrip.controllers.TripController;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
 import nz.ac.waikato.cs.roadtrip.helpers.NavigationDrawerHelper;
 import nz.ac.waikato.cs.roadtrip.helpers.NavigationHelper;
+import nz.ac.waikato.cs.roadtrip.models.DirectionsResponce;
 import nz.ac.waikato.cs.roadtrip.models.Point;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 public class MapsPage extends Activity {
@@ -62,7 +66,7 @@ public class MapsPage extends Activity {
 					EditText textMessage = (EditText)v;
 					
 					try {
-						
+						hideKeyboard();
 						Point p = map.getCurrentPossition();
 						//GoogleDirectionsConnection.getDirections(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString());
 						new HttpRequestAsync().execute(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString() + ", New Zealand");
@@ -77,6 +81,12 @@ public class MapsPage extends Activity {
 				return true;
 			}
 	    }); 
+	}
+
+	protected void hideKeyboard() {
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(((EditText)findViewById(R.id.text_box_search)).getWindowToken(), 0);
 	}
 
 	private void initialiseComponents() throws Exception {
@@ -114,10 +124,30 @@ public class MapsPage extends Activity {
 		        int res = response.getStatusLine().getStatusCode();
 		        
 		        if(res == HttpStatus.SC_OK){
+		        	//DirectionsResponce dr = response.parseAs(DirectionsResponce.class);		        	
 		        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
 		        	Trip thisTrip = TripController.newTrip(mainObject);
 		        	return thisTrip;
 		        }
+		        
+		        
+	    		/*HttpRequestFactory requestFactory = NetHttpTransport.createRequestFactory(new HttpRequestInitializer() {
+	    			@Override
+	    			public void initialize(HttpRequest request) {
+	    			request.setParser(new JsonObjectParser(JSON_FACTORY));
+	    			}
+	    			});
+
+	    			GenericUrl url = new GenericUrl("http://maps.googleapis.com/maps/api/directions/json");
+	    			url.put("origin", "Chicago,IL");
+	    			url.put("destination", "Los Angeles,CA");
+	    			url.put("sensor",false);
+
+	    			HttpRequest request = requestFactory.buildGetRequest(url);
+	    			HttpResponse httpResponse = request.execute();
+	    			DirectionsResult directionsResult = httpResponse.parseAs(DirectionsResult.class);
+	    			String encodedPoints = directionsResult.routes.get(0).overviewPolyLine.points;
+	    			latLngs = PolyUtil.decode(encodedPoints);*/
 			}
 	        catch(Exception e){
 	        	e.printStackTrace();
@@ -136,7 +166,7 @@ public class MapsPage extends Activity {
 	        super.onPostExecute(result);
 	        
 	        if(result != null){
-	        	TripController.drawTrip(result, mPage);
+	        	map.drawTrip(result);
 	        }
 	    }
 	}
