@@ -2,11 +2,17 @@ package nz.ac.waikato.cs.roadtrip.models;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.maps.model.PolylineOptions;
+
 public class Trip {
 	public Point start;
     public Point end;
     public String distance;
     public String duration;
+    public PolylineOptions polylineOptions;
+    
+    public Point northEast;
+    public Point southWest;
     
     public ArrayList<Leg> legs = new ArrayList<Leg>();
 
