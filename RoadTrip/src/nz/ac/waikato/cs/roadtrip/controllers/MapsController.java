@@ -1,15 +1,18 @@
 package nz.ac.waikato.cs.roadtrip.controllers;
 
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import nz.ac.waikato.cs.roadtrip.MapsPage;
 import nz.ac.waikato.cs.roadtrip.R;
+import nz.ac.waikato.cs.roadtrip.models.Place;
 import nz.ac.waikato.cs.roadtrip.models.Point;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -84,5 +87,16 @@ public class MapsController {
 		map.addMarker(new MarkerOptions()
 			.position(new LatLng(point.getLatitude(), point.getLongitude()))
 			.title(title));
+	}
+	
+	public void drawPlaces(ArrayList<Place> placeList){
+		for(Place place : placeList){
+			map.addMarker(new MarkerOptions()
+			.position(new LatLng(place.location.getLatitude(), place.location.getLongitude()))
+			.title(place.name)
+			.snippet(place.vicinity)
+			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+		}
+
 	}
 }
