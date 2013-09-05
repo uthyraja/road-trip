@@ -2,6 +2,7 @@ package nz.ac.waikato.cs.roadtrip;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,11 +22,13 @@ import org.xml.sax.SAXException;
 import nz.ac.waikato.cs.roadtrip.asyncTasks.HttpRequestAsync;
 import nz.ac.waikato.cs.roadtrip.controllers.GoogleDirectionsConnection;
 import nz.ac.waikato.cs.roadtrip.controllers.MapsController;
+import nz.ac.waikato.cs.roadtrip.controllers.PlaceController;
 import nz.ac.waikato.cs.roadtrip.controllers.TripController;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
 import nz.ac.waikato.cs.roadtrip.helpers.NavigationDrawerHelper;
 import nz.ac.waikato.cs.roadtrip.helpers.NavigationHelper;
 import nz.ac.waikato.cs.roadtrip.models.DirectionsResponce;
+import nz.ac.waikato.cs.roadtrip.models.Place;
 import nz.ac.waikato.cs.roadtrip.models.Point;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
 import android.os.AsyncTask;
@@ -45,6 +48,7 @@ public class MapsPage extends Activity {
 
 	MapsController map;
 	MapsPage mPage;
+	Trip trip;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +74,6 @@ public class MapsPage extends Activity {
 						Point p = map.getCurrentPossition();
 						//GoogleDirectionsConnection.getDirections(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString());
 						new HttpRequestAsync().execute(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString() + ", New Zealand");
-						
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -167,8 +170,62 @@ public class MapsPage extends Activity {
 	        
 	        if(result != null){
 	        	map.drawTrip(result);
+	        	new GetPlacesAsync().execute(result.end.getLatitude() + "," + result.end.getLongitude());
 	        }
 	    }
 	}
+	private class GetPlacesAsync extends AsyncTask<String, String, ArrayList<Place>>{
 
+		private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
+		private static final String TYPE_SEARCH = "/search";
+		private static final String OUT_JSON = "/json";
+		private static final String API_KEY = "AIzaSyBtffHwqCLotld7p15WG8JcGXkrVzratL4";
+		private static final String RADIUS = "1000";
+		
+		@Override
+		protected ArrayList<Place> doInBackground(String... arg0) {
+
+			for (String location : arg0) {
+				
+				//build url
+				StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_SEARCH + OUT_JSON);
+		        sb.append("?location=" + location + "&radius=" + RADIUS + "&sensor=false&key=" + API_KEY);
+		        //sb.append("&input=" + URLEncoder.encode(input, "utf8"));
+		       
+				try {
+					
+					//try to fetch the data
+					HttpGet connection = new HttpGet(sb.toString());
+					HttpClient client = new DefaultHttpClient();
+			        HttpResponse response = client.execute(connection);
+			        int status = response.getStatusLine().getStatusCode();
+					
+					//only carry on if response is OK
+					if(status == HttpStatus.SC_OK){
+			        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
+			        	ArrayList<Place> places = PlaceController.newPlaceList(mainObject);
+			        	return places;
+			        }
+				}
+				catch(Exception e){ 
+					e.printStackTrace(); 
+				}
+			}
+			return null;
+		}
+
+	    private String convertStreamToString(java.io.InputStream is) {
+	        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+	        return s.hasNext() ? s.next() : "";
+	    }
+
+	    @Override
+	    protected void onPostExecute(ArrayList<Place> result) {
+	        super.onPostExecute(result);
+	        
+	        if(result != null){
+	        	map.drawPlaces(result);
+	        }
+	    }
+	}
 }
