@@ -35,6 +35,8 @@ public class TripController {
 				.geodesic(true)
 				.addAll(polyline);
 			
+			newTrip.points = polyline;
+			
 			//get bounds for map view
 			JSONObject bounds = root.getJSONObject("bounds");
 			

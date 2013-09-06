@@ -132,25 +132,6 @@ public class MapsPage extends Activity {
 		        	Trip thisTrip = TripController.newTrip(mainObject);
 		        	return thisTrip;
 		        }
-		        
-		        
-	    		/*HttpRequestFactory requestFactory = NetHttpTransport.createRequestFactory(new HttpRequestInitializer() {
-	    			@Override
-	    			public void initialize(HttpRequest request) {
-	    			request.setParser(new JsonObjectParser(JSON_FACTORY));
-	    			}
-	    			});
-
-	    			GenericUrl url = new GenericUrl("http://maps.googleapis.com/maps/api/directions/json");
-	    			url.put("origin", "Chicago,IL");
-	    			url.put("destination", "Los Angeles,CA");
-	    			url.put("sensor",false);
-
-	    			HttpRequest request = requestFactory.buildGetRequest(url);
-	    			HttpResponse httpResponse = request.execute();
-	    			DirectionsResult directionsResult = httpResponse.parseAs(DirectionsResult.class);
-	    			String encodedPoints = directionsResult.routes.get(0).overviewPolyLine.points;
-	    			latLngs = PolyUtil.decode(encodedPoints);*/
 			}
 	        catch(Exception e){
 	        	e.printStackTrace();
@@ -185,6 +166,8 @@ public class MapsPage extends Activity {
 		@Override
 		protected ArrayList<Place> doInBackground(String... arg0) {
 
+			ArrayList<Place> places;
+			
 			for (String location : arg0) {
 				
 				//build url
@@ -203,8 +186,9 @@ public class MapsPage extends Activity {
 					//only carry on if response is OK
 					if(status == HttpStatus.SC_OK){
 			        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
-			        	ArrayList<Place> places = PlaceController.newPlaceList(mainObject);
+			        	places = PlaceController.newPlaceList(mainObject);
 			        	return places;
+			        	
 			        }
 				}
 				catch(Exception e){ 
