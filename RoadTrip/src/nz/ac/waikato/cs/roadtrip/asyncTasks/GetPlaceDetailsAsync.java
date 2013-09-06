@@ -42,8 +42,8 @@ public class GetPlaceDetailsAsync extends AsyncTask<String, String, ArrayList<De
 				//only carry on if response is OK
 				if(status == HttpStatus.SC_OK){
 		        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
-		        	ArrayList<DetailedPlace> places = PlaceController.newPlaceList(mainObject);
-		        	return places;
+		        	//ArrayList<DetailedPlace> places = PlaceController.newPlaceList(mainObject);
+		        	//return places;
 		        }
 			}
 			catch(Exception e){ 
