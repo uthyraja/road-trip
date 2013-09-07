@@ -1,16 +1,152 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F1F1F1"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".TripPage" >
-
+    
+    <!-- "Where are we going?" -->
     <TextView
+        android:id="@+id/textViewWhereAreWeGoing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:layout_marginBottom="10dp"
+        android:textSize="22sp"
+        android:text="Where are we going?"
+        android:textColor="#000000" />
 
+    <!-- Origin, Destination, and "to" -->
+    <RelativeLayout
+        android:id="@+id/rlWhereAreWeGoing"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:layout_below="@id/textViewWhereAreWeGoing"
+        android:background="#E5E5E5"
+        >
+
+        <!-- Edit texts -->
+        <RelativeLayout
+            android:id="@+id/rlEditTexts"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            >
+            <!-- Origon -->
+            <EditText
+                android:id="@+id/editTextOrigin"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#FFFFFF"
+                android:textColor="#000000"
+                android:inputType="text"
+                android:hint="From..."/>
+
+            <!-- Destination -->
+            <EditText
+                android:id="@+id/editTextDestination"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/editTextOrigin"
+                android:background="#FFFFFF"
+                android:textColor="#000000"
+                android:inputType="text"
+                android:hint="To..."/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <!-- "Where are we going?" -->
+    <TextView
+        android:id="@+id/textWhatWillWeSee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/rlWhereAreWeGoing"
+        android:textSize="22sp"
+        android:text="What will we see?"
+        android:textColor="#000000" />
+
+    <!--Checkboxes -->
+    <RelativeLayout
+        android:id="@+id/rlWhatWillWeSee"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_below="@id/textWhatWillWeSee"
+        android:background="#E5E5E5"
+        >
+
+        <!-- Edit texts -->
+        <RelativeLayout
+            android:id="@+id/rlEditTexts"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:background="#FFFFFF"
+            >
+
+            <LinearLayout
+                android:id="@+id/llCheckBoxes1"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:orientation="vertical">
+
+                <CheckBox
+                    android:id="@+id/cbFood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Food"
+                    android:textColor="#000000"/>
+
+                <CheckBox
+                    android:id="@+id/cbAccomodation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accomodation"
+                    android:textColor="#000000"/>
+
+                <CheckBox
+                    android:id="@+id/cbEntertainment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Entertainment"
+                    android:textColor="#000000"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llCheckBoxes2"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_toRightOf="@id/llCheckBoxes1"
+                android:orientation="vertical"
+                android:layout_marginLeft="10dp">
+
+                <CheckBox
+                    android:id="@+id/cbLandmarks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Landmarks"
+                    android:textColor="#000000"/>
+
+                <CheckBox
+                    android:id="@+id/cbWalks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Walks"
+                    android:textColor="#000000"/>
+
+            </LinearLayout>
+        </RelativeLayout>
+    </RelativeLayout>
 </RelativeLayout>
