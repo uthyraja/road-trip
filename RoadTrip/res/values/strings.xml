@@ -9,5 +9,9 @@
     <string name="title_activity_trip_page">TripPage</string>
     <string name="title_activity_settings_page">SettingsPage</string>
     <string name="search_title">Search Title</string>
+    <string name="where_are_we_going">Where are we going?</string>
+    <string name="destination">Destination</string>
+    <string name="from">From...</string>
+    <string name="to">To...</string>
 
 </resources>

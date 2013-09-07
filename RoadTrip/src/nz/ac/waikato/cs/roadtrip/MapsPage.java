@@ -66,7 +66,7 @@ public class MapsPage extends Activity {
 
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (keyCode == KeyEvent.KEYCODE_ENTER) {
+				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
 					EditText textMessage = (EditText)v;
 					
 					try {
