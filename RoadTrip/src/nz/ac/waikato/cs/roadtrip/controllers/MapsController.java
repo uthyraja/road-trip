@@ -1,6 +1,7 @@
 package nz.ac.waikato.cs.roadtrip.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 
 import nz.ac.waikato.cs.roadtrip.MapsPage;
@@ -89,8 +90,8 @@ public class MapsController {
 			.title(title));
 	}
 	
-	public void drawPlaces(ArrayList<Place> placeList){
-		for(Place place : placeList){
+	public void drawPlaces(HashMap<String,Place> placeMap){
+		for(Place place : placeMap.values()){
 			map.addMarker(new MarkerOptions()
 			.position(new LatLng(place.location.getLatitude(), place.location.getLongitude()))
 			.title(place.name)
