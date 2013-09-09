@@ -27,4 +27,9 @@ public class Place {
 	public Place(){
 		
 	}
+	
+	@Override
+    public String toString() {
+        return this.name;
+    }
 }
