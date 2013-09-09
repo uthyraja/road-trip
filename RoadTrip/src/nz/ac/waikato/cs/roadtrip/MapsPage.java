@@ -47,7 +47,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 
 public class MapsPage extends Activity {
 
@@ -116,6 +118,36 @@ public class MapsPage extends Activity {
 			MessageBoxHelper.showMessageBox(this, e.getMessage());
 		}
 		return true;
+	}
+	
+	public void displayPlaceList(HashMap<String, Place> finalPlaces){
+		/*
+		// DUMMY DATA
+		Point wel = new Point(-37.79514,175.295434);
+		Point lel = new Point(-37.89814,175.565434);
+		ArrayList<String> keywords = new ArrayList<String>();
+		keywords.add("Fast Food");
+		keywords.add("Eat");		
+		
+		Place p1 = new Place ("ID1", "McDaniels", wel, "reference", "vicinity", keywords, true, 2);
+		Place p2 = new Place("ID2", "Burger Queen", lel, "reference2", "vicinity2", keywords, false, 4);
+		Place p3 = new Place("ID3", "Carls Snr.", lel, "reference3", "vicinity3", keywords, false, 3);
+		
+		ArrayList<Place> list = new ArrayList<Place>();
+		list.add(p1);
+		list.add(p2);
+		list.add(p3);
+		// END OF DUMMY DATA
+		*/
+		
+		ArrayList<Place> placeNames = new ArrayList<Place>();
+		for(Place p : finalPlaces.values()){
+			placeNames.add(p);
+		}
+				
+		ListView lv = (ListView)findViewById(R.id.right_drawer);
+		ArrayAdapter<Place> arrayAdapter = new ArrayAdapter<Place>(this,android.R.layout.simple_list_item_1, placeNames);
+		lv.setAdapter(arrayAdapter); 
 	}
 	
 	private class HttpRequestAsync extends AsyncTask<String, String, Trip>{
@@ -221,6 +253,7 @@ public class MapsPage extends Activity {
 	        
 	        if(result != null){
 	        	map.drawPlaces(result);
+	        	displayPlaceList(result);
 	        }
 	    }
 	}
