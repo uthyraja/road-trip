@@ -3,6 +3,9 @@ package nz.ac.waikato.cs.roadtrip;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,6 +21,8 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import nz.ac.waikato.cs.roadtrip.asyncTasks.HttpRequestAsync;
 import nz.ac.waikato.cs.roadtrip.controllers.GoogleDirectionsConnection;
@@ -49,6 +54,7 @@ public class MapsPage extends Activity {
 	MapsController map;
 	MapsPage mPage;
 	Trip trip;
+	String radius = "1000";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -145,57 +151,63 @@ public class MapsPage extends Activity {
 	        return s.hasNext() ? s.next() : "";
 	    }
 
-	    @Override
+	    @SuppressWarnings("unchecked")
+		@Override
 	    protected void onPostExecute(Trip result) {
 	        super.onPostExecute(result);
 	        
 	        if(result != null){
 	        	map.drawTrip(result);
-	        	new GetPlacesAsync().execute(result.end.getLatitude() + "," + result.end.getLongitude());
+	        	new GetPlacesAsync().execute(result.getTrimmedPoints(1));
 	        }
 	    }
 	}
-	private class GetPlacesAsync extends AsyncTask<String, String, ArrayList<Place>>{
+	private class GetPlacesAsync extends AsyncTask<ArrayList<LatLng>, String, HashMap<String,Place>>{
 
 		private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 		private static final String TYPE_SEARCH = "/search";
 		private static final String OUT_JSON = "/json";
 		private static final String API_KEY = "AIzaSyBtffHwqCLotld7p15WG8JcGXkrVzratL4";
-		private static final String RADIUS = "1000";
 		
 		@Override
-		protected ArrayList<Place> doInBackground(String... arg0) {
+		protected HashMap<String,Place> doInBackground(ArrayList<LatLng>... arg0) {
 
+			HashMap<String, Place> finalPlaces = new HashMap<String, Place>();
 			ArrayList<Place> places;
 			
-			for (String location : arg0) {
+			for (ArrayList<LatLng> listLocation : arg0) {
 				
-				//build url
-				StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_SEARCH + OUT_JSON);
-		        sb.append("?location=" + location + "&radius=" + RADIUS + "&sensor=false&key=" + API_KEY);
-		        //sb.append("&input=" + URLEncoder.encode(input, "utf8"));
-		       
-				try {
+				for (LatLng location : listLocation){
 					
-					//try to fetch the data
-					HttpGet connection = new HttpGet(sb.toString());
-					HttpClient client = new DefaultHttpClient();
-			        HttpResponse response = client.execute(connection);
-			        int status = response.getStatusLine().getStatusCode();
-					
-					//only carry on if response is OK
-					if(status == HttpStatus.SC_OK){
-			        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
-			        	places = PlaceController.newPlaceList(mainObject);
-			        	return places;
-			        	
-			        }
-				}
-				catch(Exception e){ 
-					e.printStackTrace(); 
+					//build url
+					StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_SEARCH + OUT_JSON);
+			        sb.append("?location=" + location.latitude + "," + location.longitude + "&radius=" + radius + "&sensor=false&key=" + API_KEY);
+			        //sb.append("&input=" + URLEncoder.encode(input, "utf8"));
+			       
+					try {
+						
+						//try to fetch the data
+						HttpGet connection = new HttpGet(sb.toString());
+						HttpClient client = new DefaultHttpClient();
+				        HttpResponse response = client.execute(connection);
+				        int status = response.getStatusLine().getStatusCode();
+						
+						//only carry on if response is OK
+						if(status == HttpStatus.SC_OK){
+				        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
+				        	places = PlaceController.newPlaceList(mainObject);
+				        	for(Place place : places){
+				        		finalPlaces.put(place.id, place);
+				        	}
+				        	
+				        }
+					}
+					catch(Exception e){ 
+						e.printStackTrace(); 
+					}
 				}
 			}
-			return null;
+			return finalPlaces;
 		}
 
 	    private String convertStreamToString(java.io.InputStream is) {
@@ -204,7 +216,7 @@ public class MapsPage extends Activity {
 	    }
 
 	    @Override
-	    protected void onPostExecute(ArrayList<Place> result) {
+	    protected void onPostExecute(HashMap<String,Place> result) {
 	        super.onPostExecute(result);
 	        
 	        if(result != null){
