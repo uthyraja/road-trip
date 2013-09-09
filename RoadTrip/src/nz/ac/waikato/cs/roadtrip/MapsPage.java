@@ -29,17 +29,22 @@ import nz.ac.waikato.cs.roadtrip.controllers.GoogleDirectionsConnection;
 import nz.ac.waikato.cs.roadtrip.controllers.MapsController;
 import nz.ac.waikato.cs.roadtrip.controllers.PlaceController;
 import nz.ac.waikato.cs.roadtrip.controllers.TripController;
+import nz.ac.waikato.cs.roadtrip.factories.ActivityFactory;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
 import nz.ac.waikato.cs.roadtrip.helpers.NavigationDrawerHelper;
 import nz.ac.waikato.cs.roadtrip.helpers.NavigationHelper;
+import nz.ac.waikato.cs.roadtrip.listeners.MapsMenuItemClickListener;
 import nz.ac.waikato.cs.roadtrip.models.DirectionsResponce;
 import nz.ac.waikato.cs.roadtrip.models.Place;
 import nz.ac.waikato.cs.roadtrip.models.Point;
+import nz.ac.waikato.cs.roadtrip.models.SerializableTrip;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -47,6 +52,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -56,7 +63,6 @@ public class MapsPage extends Activity {
 	MapsController map;
 	MapsPage mPage;
 	Trip trip;
-	String radius = "1000";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +98,8 @@ public class MapsPage extends Activity {
 				return true;
 			}
 	    }); 
+	    
+	    
 	}
 
 	protected void hideKeyboard() {
@@ -104,9 +112,53 @@ public class MapsPage extends Activity {
 			map = new MapsController(this);
 			mPage = this;
 			
-			//later i will put this method in the navigationdrawerhelper class
-			NavigationDrawerHelper.Initialise(this, R.id.left_drawer, R.array.maps_page_menu);
+			
+			//NavigationDrawerHelper.Initialise(this, R.id.left_drawer, R.array.maps_page_menu);
+			ListView mDrawerList = (ListView) this.findViewById(R.id.left_drawer);
+	        String[] list = this.getResources().getStringArray(R.array.maps_page_menu);
+	        
+	        // Set the adapter for the list view
+	        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
+	        
+	        // Set the list's click listener
+	        mDrawerList.setOnItemClickListener(new OnItemClickListener(){
+
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+					try{
+						ArrayList<Class> list = ActivityFactory.mapsPageNavigation();
+						Class newActivity = list.get(arg2);
+						
+						//NavigationHelper.goTo(current, newActivity);
+						
+						trip = new Trip(map.getCurrentPossition(), null, null, null, null);
+						
+						Intent intent = new Intent(mPage, newActivity);
+						intent.putExtra("trip", trip.getSerializable());
+						startActivityForResult(intent, arg2);
+					}
+					catch(Exception e){
+						MessageBoxHelper.showMessageBox(mPage, e.getMessage());
+					}
+				}
+	        	
+	        });
 	}
+	
+	
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	     if (requestCode == 0)
+	     {
+	         if (resultCode == RESULT_OK)
+	         {
+	        	 SerializableTrip st = (SerializableTrip) intent.getSerializableExtra("trip");
+	             trip = new Trip(st);
+	             // Do whatever with the updated object
+	         }
+	     }
+	 }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -200,6 +252,7 @@ public class MapsPage extends Activity {
 		private static final String TYPE_SEARCH = "/search";
 		private static final String OUT_JSON = "/json";
 		private static final String API_KEY = "AIzaSyBtffHwqCLotld7p15WG8JcGXkrVzratL4";
+		private double radius = 1000;
 		
 		@Override
 		protected HashMap<String,Place> doInBackground(ArrayList<LatLng>... arg0) {

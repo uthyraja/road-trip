@@ -192,7 +192,7 @@
         android:layout_below="@id/spinnerRadius"
         android:id="@+id/buttonGo"
         android:text="Lets go!"
-        android:textColor="#000000"
+        android:textColor="#FFFFFF"
         android:onClick="buttonGoClick"/>
     
 </RelativeLayout>
