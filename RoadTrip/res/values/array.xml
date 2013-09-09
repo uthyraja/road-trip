@@ -5,4 +5,18 @@
         <item>Settings</item>
     </string-array>
     
+    <string-array name="radius">
+        <item>0.5 km</item>
+        <item>1 km</item>
+        <item>1.5 km</item>
+        <item>2 km</item>
+        <item>2.5 km</item>
+        <item>3 km</item>
+        <item>3.5 km</item>
+        <item>4 km</item>
+        <item>4.5 km</item>
+        <item>5 km</item>
+        <item>5.5 km</item>
+    </string-array>
+    
 </resources>
