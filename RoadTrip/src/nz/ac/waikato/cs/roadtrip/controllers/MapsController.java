@@ -84,7 +84,7 @@ public class MapsController {
 		map.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(sw,ne), 100));
 	}
 
-	private void addMarker(Point point, String title) {
+	public void addMarker(Point point, String title) {
 		map.addMarker(new MarkerOptions()
 			.position(new LatLng(point.getLatitude(), point.getLongitude()))
 			.title(title));

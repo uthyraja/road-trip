@@ -1,55 +1,33 @@
 package nz.ac.waikato.cs.roadtrip;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import nz.ac.waikato.cs.roadtrip.asyncTasks.HttpRequestAsync;
-import nz.ac.waikato.cs.roadtrip.controllers.GoogleDirectionsConnection;
 import nz.ac.waikato.cs.roadtrip.controllers.MapsController;
 import nz.ac.waikato.cs.roadtrip.controllers.PlaceController;
 import nz.ac.waikato.cs.roadtrip.controllers.TripController;
 import nz.ac.waikato.cs.roadtrip.factories.ActivityFactory;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
-import nz.ac.waikato.cs.roadtrip.helpers.NavigationDrawerHelper;
-import nz.ac.waikato.cs.roadtrip.helpers.NavigationHelper;
-import nz.ac.waikato.cs.roadtrip.listeners.MapsMenuItemClickListener;
-import nz.ac.waikato.cs.roadtrip.models.DirectionsResponce;
 import nz.ac.waikato.cs.roadtrip.models.Place;
 import nz.ac.waikato.cs.roadtrip.models.Point;
 import nz.ac.waikato.cs.roadtrip.models.SerializableTrip;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -173,24 +151,6 @@ public class MapsPage extends Activity {
 	}
 	
 	public void displayPlaceList(HashMap<String, Place> finalPlaces){
-		/*
-		// DUMMY DATA
-		Point wel = new Point(-37.79514,175.295434);
-		Point lel = new Point(-37.89814,175.565434);
-		ArrayList<String> keywords = new ArrayList<String>();
-		keywords.add("Fast Food");
-		keywords.add("Eat");		
-		
-		Place p1 = new Place ("ID1", "McDaniels", wel, "reference", "vicinity", keywords, true, 2);
-		Place p2 = new Place("ID2", "Burger Queen", lel, "reference2", "vicinity2", keywords, false, 4);
-		Place p3 = new Place("ID3", "Carls Snr.", lel, "reference3", "vicinity3", keywords, false, 3);
-		
-		ArrayList<Place> list = new ArrayList<Place>();
-		list.add(p1);
-		list.add(p2);
-		list.add(p3);
-		// END OF DUMMY DATA
-		*/
 		
 		ArrayList<Place> placeNames = new ArrayList<Place>();
 		for(Place p : finalPlaces.values()){
