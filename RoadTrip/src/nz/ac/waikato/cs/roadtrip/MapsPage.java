@@ -2,6 +2,8 @@ package nz.ac.waikato.cs.roadtrip;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -49,35 +51,10 @@ public class MapsPage extends Activity {
 		
 		try {
 			initialiseComponents();
+			
 		} catch (Exception e) {
 			MessageBoxHelper.showMessageBox(this, e.getMessage());
 		}
-		
-		EditText textMessage = (EditText)findViewById(R.id.text_box_search);
-	    textMessage.setOnKeyListener(new View.OnKeyListener() {
-
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
-					EditText textMessage = (EditText)v;
-					
-					try {
-						hideKeyboard();
-						Point p = map.getCurrentPossition();
-						//GoogleDirectionsConnection.getDirections(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString());
-						new HttpRequestAsync().execute(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString() + ", New Zealand");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						System.err.println(e.getMessage());
-					}
-				}
-				
-				return true;
-			}
-	    }); 
-	    
-	    
 	}
 
 	protected void hideKeyboard() {
@@ -98,7 +75,7 @@ public class MapsPage extends Activity {
 	        // Set the adapter for the list view
 	        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
 	        
-	        // Set the list's click listener
+	        // Set the left drawer list's click listener
 	        mDrawerList.setOnItemClickListener(new OnItemClickListener(){
 
 				@Override
@@ -121,6 +98,44 @@ public class MapsPage extends Activity {
 				}
 	        	
 	        });
+	        
+	        //listens for the return button being pressed for the search text box
+	        EditText textMessage = (EditText)findViewById(R.id.text_box_search);
+		    textMessage.setOnKeyListener(new View.OnKeyListener() {
+
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event){
+					if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
+						EditText textMessage = (EditText)v;
+						
+						try {
+							hideKeyboard();
+							Point p = map.getCurrentPossition();
+							//GoogleDirectionsConnection.getDirections(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString());
+							new HttpRequestAsync().execute(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString() + ", New Zealand");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							System.err.println(e.getMessage());
+						}
+					}
+					
+					return true;
+				}
+		    }); 
+		    
+		    Timer timer = new Timer();
+		    timer.scheduleAtFixedRate(new TimerTask() {
+		    	  @Override
+		    	  public void run() {
+		    	    try{
+		    	    	//map.updateToCurrentPossition(mPage);
+		    	    }
+		    	    catch(Exception e){
+		    	    	
+		    	    }
+		    	  }
+		    	}, 5000, 5000);
 	}
 	
 	

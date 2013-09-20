@@ -33,19 +33,24 @@ public class MapsController {
 		map.getUiSettings().setCompassEnabled(true);
 		map.getUiSettings().setRotateGesturesEnabled(true);
 		map.getUiSettings().setZoomControlsEnabled(false);
+		map.setMyLocationEnabled(true);
 		
-		//create a controller for our location
-		location = new LocationController(current);
-		
-		//create a listner for when the location is set
-		location.setOnConnectedListner(new Callable<Void>(){
+		updateToCurrentPossition(current);
+	}
 
-		@Override
-		public Void call() throws Exception {
-			// TODO Auto-generated method stub
-			animateToCurrent();
-			return null;
-		}});
+	public void updateToCurrentPossition(MapsPage current) throws Exception {
+		//create a controller for our location
+				location = new LocationController(current);
+				
+				//create a listner for when the location is set
+				location.setOnConnectedListner(new Callable<Void>(){
+
+				@Override
+				public Void call() throws Exception {
+					// TODO Auto-generated method stub
+					animateToCurrent();
+					return null;
+				}});
 	}
 
 	public void animateToCurrent() throws Exception{
