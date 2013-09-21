@@ -16,13 +16,13 @@ import com.google.android.gms.maps.model.LatLng;
 
 import nz.ac.waikato.cs.roadtrip.controllers.MapsController;
 import nz.ac.waikato.cs.roadtrip.controllers.PlaceController;
-import nz.ac.waikato.cs.roadtrip.controllers.TripController;
 import nz.ac.waikato.cs.roadtrip.factories.ActivityFactory;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
 import nz.ac.waikato.cs.roadtrip.models.Place;
 import nz.ac.waikato.cs.roadtrip.models.Point;
 import nz.ac.waikato.cs.roadtrip.models.SerializableTrip;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
+import nz.ac.waikato.cs.roadtrip.models.TripCategories;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
@@ -66,7 +66,7 @@ public class MapsPage extends Activity {
 	private void initialiseComponents() throws Exception {
 			map = new MapsController(this);
 			mPage = this;
-			
+			trip = new Trip(null, null, null, null, null);
 			
 			//NavigationDrawerHelper.Initialise(this, R.id.left_drawer, R.array.maps_page_menu);
 			ListView mDrawerList = (ListView) this.findViewById(R.id.left_drawer);
@@ -85,12 +85,11 @@ public class MapsPage extends Activity {
 						Class newActivity = list.get(arg2);
 						
 						//NavigationHelper.goTo(current, newActivity);
-						
-						trip = new Trip(map.getCurrentPossition(), null, null, null, null);
+						trip.start = map.getCurrentPossition();
 						
 						Intent intent = new Intent(mPage, newActivity);
 						intent.putExtra("trip", trip.getSerializable());
-						startActivityForResult(intent, arg2);
+						startActivityForResult(intent, 2);
 					}
 					catch(Exception e){
 						MessageBoxHelper.showMessageBox(mPage, e.getMessage());
@@ -110,9 +109,13 @@ public class MapsPage extends Activity {
 						
 						try {
 							hideKeyboard();
-							Point p = map.getCurrentPossition();
-							//GoogleDirectionsConnection.getDirections(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString());
-							new HttpRequestAsync().execute(p.getLatitude() + "," + p.getLongitude(), textMessage.getText().toString() + ", New Zealand");
+							
+							trip.start = map.getCurrentPossition();
+							trip.end_address = textMessage.getText().toString() + ", New Zealand";
+							trip.radius = 1000;
+							trip.tripCategories = new TripCategories(true, true, true, true, true);
+							
+							new HttpRequestAsync().execute(trip);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -123,32 +126,18 @@ public class MapsPage extends Activity {
 					return true;
 				}
 		    }); 
-		    
-		    Timer timer = new Timer();
-		    timer.scheduleAtFixedRate(new TimerTask() {
-		    	  @Override
-		    	  public void run() {
-		    	    try{
-		    	    	//map.updateToCurrentPossition(mPage);
-		    	    }
-		    	    catch(Exception e){
-		    	    	
-		    	    }
-		    	  }
-		    	}, 5000, 5000);
 	}
-	
-	
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-	     if (requestCode == 0)
+	     if (requestCode == 2)
 	     {
 	         if (resultCode == RESULT_OK)
 	         {
 	        	 SerializableTrip st = (SerializableTrip) intent.getSerializableExtra("trip");
-	             trip = new Trip(st);
-	             // Do whatever with the updated object
+	             trip.deserializeTrip(st);
+	             
+	             new HttpRequestAsync().execute(trip);
 	         }
 	     }
 	 }
@@ -177,24 +166,23 @@ public class MapsPage extends Activity {
 		lv.setAdapter(arrayAdapter); 
 	}
 	
-	private class HttpRequestAsync extends AsyncTask<String, String, Trip>{
+	private class HttpRequestAsync extends AsyncTask<Trip, String, Trip>{
 
 	    @Override
-	    protected Trip doInBackground(String... uri) {
+	    protected Trip doInBackground(Trip... uri) {
 	    	try{
-				String baseURI = "http://maps.googleapis.com/maps/api/directions/json?";
-				String parameters = String.format("origin=%s&destination=%s&sensor=true", uri[0], uri[1]);
-				String fullURI = (baseURI + parameters).replace(" ", "%20");
+	    		Trip thisTrip = uri[0];
+	    		
+				String httpConnectionString = thisTrip.getGoogleMapsAPIHttpRequest();
 				
-				HttpGet connection = new HttpGet(fullURI);
+				HttpGet connection = new HttpGet(httpConnectionString);
 				HttpClient client = new DefaultHttpClient();
 		        HttpResponse response = client.execute(connection);
 		        int res = response.getStatusLine().getStatusCode();
 		        
 		        if(res == HttpStatus.SC_OK){
-		        	//DirectionsResponce dr = response.parseAs(DirectionsResponce.class);		        	
-		        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
-		        	Trip thisTrip = TripController.newTrip(mainObject);
+		        	//DirectionsResponce dr = response.parseAs(DirectionsResponce.class)
+		        	thisTrip.analizeJSON(convertStreamToString(response.getEntity().getContent()));
 		        	return thisTrip;
 		        }
 			}

@@ -9,6 +9,7 @@ import java.io.Serializable;
 		private String start;
 		private String end;
 		private double radius;
+		public TripCategories tripCategories;
 		
 		public SerializableTrip(String start, String end, double radius){
 			this.start = start;
@@ -46,5 +47,10 @@ import java.io.Serializable;
 		public double getRadius() {
 			// TODO Auto-generated method stub
 			return radius;
+		}
+
+		public TripCategories getCategories() {
+			// TODO Auto-generated method stub
+			return tripCategories;
 		}
 	}

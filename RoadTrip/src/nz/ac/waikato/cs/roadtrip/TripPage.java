@@ -89,8 +89,8 @@ public class TripPage extends Activity {
 			
 			Spinner spin = (Spinner)findViewById(R.id.spinnerRadius);
 			
-			//newTrip.tripCategories = new TripCategories(cbAcc.isChecked(), cbEnt.isChecked(), cbFood.isChecked(), cbLand.isChecked(), cbWalks.isChecked());
-			newTrip.setEnd(destination.getText().toString());
+			newTrip.tripCategories = new TripCategories(cbAcc.isChecked(), cbEnt.isChecked(), cbFood.isChecked(), cbLand.isChecked(), cbWalks.isChecked());
+			newTrip.setEnd(destination.getText().toString() + ", New Zealand");
 			newTrip.setRaduis(getRadiusFromId(spin.getSelectedItemId()));
 			
 			Intent result = new Intent();
@@ -101,39 +101,20 @@ public class TripPage extends Activity {
 			
 			result.putExtra("trip", newTrip);
 			setResult(RESULT_OK, result);
+			
+			try{
+				finish();
+			}
+			catch(Exception e){
+				MessageBoxHelper.showMessageBox(this, e.getMessage());
+			}
 		}
 		else
 			MessageBoxHelper.showMessageBox(this, "Incorrect Inputs", "One or more of the input are incorrect");
 	}
 
 	private double getRadiusFromId(long selectedItemId) {
-		switch ((int) selectedItemId){
-		
-		case 1: selectedItemId = 0;
-			return 500;
-		case 2: selectedItemId = 1;
-		return 1000;
-		case 3: selectedItemId = 2;
-		return 1500;
-		case 4: selectedItemId = 3;
-		return 2000;
-		case 5: selectedItemId = 4;
-		return 2500;
-		case 6: selectedItemId = 5;
-		return 3000;
-		case 7: selectedItemId = 6;
-		return 3500;
-		case 8: selectedItemId = 7;
-		return 4000;
-		case 9: selectedItemId = 8;
-		return 4500;
-		case 10: selectedItemId = 9;
-		return 5000;
-		case 11: selectedItemId = 10;
-		return 5500;
-		}
-		
-		return -1;
+		return (selectedItemId + 1) * 500;
 	}
 
 	private boolean allControlValuesAreNotNullAndValid() {

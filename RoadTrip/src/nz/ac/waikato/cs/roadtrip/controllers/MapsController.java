@@ -25,7 +25,7 @@ public class MapsController {
 	private GoogleMap map;
 	LocationController location;
 	
-	private int defaultZoom = 13;
+	private int defaultZoom = 15;
 	
 	public MapsController(MapsPage current) throws Exception{
 		this.map = ((MapFragment) current.getFragmentManager().findFragmentById(R.id.map)).getMap();

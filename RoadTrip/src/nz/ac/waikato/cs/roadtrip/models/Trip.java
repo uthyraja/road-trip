@@ -4,11 +4,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 
 public class Trip{
 	/**
@@ -97,5 +101,49 @@ public class Trip{
 		
 		else
 			return new SerializableTrip(start_address, end_address, radius);
+	}
+
+	public String getGoogleMapsAPIHttpRequest() {
+		
+		String baseURI = "http://maps.googleapis.com/maps/api/directions/json?";
+		String parameters;
+		if(start_address == null || start_address.equalsIgnoreCase("current Location"))
+			parameters = String.format("origin=%s&destination=%s&sensor=true", this.start.getFormattedPoint(), this.end_address);
+		else 
+			parameters = String.format("origin=%s&destination=%s&sensor=true", this.start_address, this.end_address);
+		
+		String fullURI = (baseURI + parameters).replace(" ", "%20");
+		
+		return fullURI;
+	}
+
+	public void analizeJSON(String mainObject) throws Exception{
+		Gson gson = new Gson();
+		DirectionsResponce responce = gson.fromJson(mainObject.toString(), DirectionsResponce.class);
+		
+		this.distance = responce.routes[0].legs[0].distance.text;
+		this.duration = responce.routes[0].legs[0].duration.text;
+		this.northEast = responce.routes[0].bounds.northeast;
+		this.southWest = responce.routes[0].bounds.southwest;
+		this.legs = responce.routes[0].legs[0].stepsToList();
+		this.points = responce.routes[0].overview_polyline.decodePoly();
+		this.end = responce.routes[0].legs[0].end_location;
+		this.start = responce.routes[0].legs[0].start_location;
+		this.start_address = responce.routes[0].legs[0].start_address;
+		this.end_address = responce.routes[0].legs[0].end_address;
+		
+		this.polylineOptions = new PolylineOptions()
+        	.width(10)
+        	.color(Color.argb(255, 30, 144, 255))
+        	.geodesic(true)
+        	.addAll(this.points);
+		
+	}
+
+	public void deserializeTrip(SerializableTrip st) {
+		this.start_address = st.getStart();
+		this.end_address = st.getEnd();
+		this.radius = st.getRadius();
+		this.tripCategories = st.getCategories();
 	}
 }

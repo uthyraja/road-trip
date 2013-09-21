@@ -1,9 +1,11 @@
 package nz.ac.waikato.cs.roadtrip.models;
 
+import java.io.Serializable;
+
 import nz.ac.waikato.cs.roadtrip.R;
 import android.widget.CheckBox;
 
-public class TripCategories {
+public class TripCategories implements Serializable {
 	public boolean accommodation;
 	public boolean entertainment;
 	public boolean food;
