@@ -16,4 +16,8 @@ public class Point {
     public double getLongitude(){
     	return Double.valueOf(lng);
     }
+
+	public String getFormattedPoint() {
+		return String.format("%s,%s", lat,lng);
+	}
 }

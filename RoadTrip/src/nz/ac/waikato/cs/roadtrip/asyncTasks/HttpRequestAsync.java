@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import nz.ac.waikato.cs.roadtrip.MapsPage;
-import nz.ac.waikato.cs.roadtrip.controllers.TripController;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
 
 import org.apache.http.HttpResponse;
@@ -35,9 +34,9 @@ public class HttpRequestAsync extends AsyncTask<String, String, Trip>{
 	        int res = response.getStatusLine().getStatusCode();
 	        
 	        if(res == HttpStatus.SC_OK){
-	        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
-	        	Trip thisTrip = TripController.newTrip(mainObject);
-	        	return thisTrip;
+	        	//JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
+	        	//Trip thisTrip = TripController.newTrip(mainObject);
+	        	//return thisTrip;
 	        }
 		}
         catch(Exception e){

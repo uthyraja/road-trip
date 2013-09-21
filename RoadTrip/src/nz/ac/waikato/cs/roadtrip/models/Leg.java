@@ -5,8 +5,13 @@ public class Leg {
     Point end;
     String distance;
     String duration;
-    String polyline;
     
+    public Leg(Point start, Point end, String distance, String duration){
+    	this.distance= distance;
+    	this.end=end;
+    	this.start = start;
+    	this.duration = duration;
+    }
     
 	public void setStart(Point point) {
 		start = point;
@@ -22,10 +27,6 @@ public class Leg {
 	}
 	public void setDuration(String string) {
 		duration = string;
-		
-	}
-	public void setPolyline(String string) {
-		polyline = string;
 		
 	}
 }
