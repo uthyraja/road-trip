@@ -18,6 +18,7 @@ import nz.ac.waikato.cs.roadtrip.controllers.MapsController;
 import nz.ac.waikato.cs.roadtrip.controllers.PlaceController;
 import nz.ac.waikato.cs.roadtrip.factories.ActivityFactory;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
+import nz.ac.waikato.cs.roadtrip.listeners.DrawerItemClickListener;
 import nz.ac.waikato.cs.roadtrip.models.Place;
 import nz.ac.waikato.cs.roadtrip.models.Point;
 import nz.ac.waikato.cs.roadtrip.models.SerializableTrip;
@@ -28,6 +29,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -35,6 +37,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -43,6 +46,10 @@ public class MapsPage extends Activity {
 	MapsController map;
 	MapsPage mPage;
 	Trip trip;
+	
+	ListView lv;
+	ArrayAdapter<Place> arrayAdapter;
+	ArrayList<Place> placeNames;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -156,14 +163,34 @@ public class MapsPage extends Activity {
 	
 	public void displayPlaceList(HashMap<String, Place> finalPlaces){
 		
-		ArrayList<Place> placeNames = new ArrayList<Place>();
+		placeNames = new ArrayList<Place>();
 		for(Place p : finalPlaces.values()){
 			placeNames.add(p);
 		}
 				
-		ListView lv = (ListView)findViewById(R.id.right_drawer);
-		ArrayAdapter<Place> arrayAdapter = new ArrayAdapter<Place>(this,android.R.layout.simple_list_item_1, placeNames);
-		lv.setAdapter(arrayAdapter); 
+		lv = (ListView)findViewById(R.id.right_drawer);
+		arrayAdapter = new ArrayAdapter<Place>(this,android.R.layout.simple_list_item_1, placeNames);
+		lv.setAdapter(arrayAdapter);
+		lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		//lv.setOnItemClickListener(new DrawerItemClickListener());
+		
+		lv.setOnItemClickListener(new OnItemClickListener(){
+
+			@Override
+				public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
+					try{
+						Place selected = placeNames.get(position);
+						map.addPlace(selected);
+						lv.setItemChecked(position, true);
+						//lvLayout.closeDrawer(lv);
+						((BaseAdapter) arg0.getAdapter()).notifyDataSetChanged();
+						
+					}
+					catch(Exception e){
+					MessageBoxHelper.showMessageBox(mPage, e.getMessage());
+				}
+			}
+		});
 	}
 	
 	private class HttpRequestAsync extends AsyncTask<Trip, String, Trip>{
@@ -268,7 +295,7 @@ public class MapsPage extends Activity {
 	        super.onPostExecute(result);
 	        
 	        if(result != null){
-	        	map.drawPlaces(result);
+	        	//map.drawPlaces(result);
 	        	displayPlaceList(result);
 	        }
 	    }

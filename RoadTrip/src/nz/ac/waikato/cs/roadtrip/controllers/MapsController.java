@@ -95,6 +95,13 @@ public class MapsController {
 			.title(title));
 	}
 	
+	public void addPlace(Place place) {
+		map.addMarker(new MarkerOptions()
+			.position(new LatLng(place.location.getLatitude(), place.location.getLongitude()))
+			.title(place.name)
+			.snippet(place.vicinity)
+			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+	}
 	public void drawPlaces(HashMap<String,Place> placeMap){
 		for(Place place : placeMap.values()){
 			map.addMarker(new MarkerOptions()
