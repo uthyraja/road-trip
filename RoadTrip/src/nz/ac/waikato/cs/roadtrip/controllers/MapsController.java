@@ -82,6 +82,7 @@ public class MapsController {
 		map.addPolyline(trip.polylineOptions);
 		addMarker(trip.start, "Origin");
 		addMarker(trip.end, "Destination");
+		drawPlacesArray(trip.pitStops);
 		
 		//zoomToFit();
 		LatLng ne= new LatLng(trip.northEast.getLatitude(), trip.northEast.getLongitude());
@@ -104,6 +105,15 @@ public class MapsController {
 	}
 	public void drawPlaces(HashMap<String,Place> placeMap){
 		for(Place place : placeMap.values()){
+			map.addMarker(new MarkerOptions()
+			.position(new LatLng(place.location.getLatitude(), place.location.getLongitude()))
+			.title(place.name)
+			.snippet(place.vicinity)
+			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+		}
+	}
+	public void drawPlacesArray(ArrayList<Place> places){
+		for(Place place : places){
 			map.addMarker(new MarkerOptions()
 			.position(new LatLng(place.location.getLatitude(), place.location.getLongitude()))
 			.title(place.name)
