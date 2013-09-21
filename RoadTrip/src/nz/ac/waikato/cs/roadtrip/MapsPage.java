@@ -48,8 +48,11 @@ public class MapsPage extends Activity {
 	Trip trip;
 	
 	ListView lv;
+	DrawerLayout lvLayout;
 	ArrayAdapter<Place> arrayAdapter;
 	ArrayList<Place> placeNames;
+	
+	HashMap<String, Place> finalPlaces;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +76,7 @@ public class MapsPage extends Activity {
 	private void initialiseComponents() throws Exception {
 			map = new MapsController(this);
 			mPage = this;
-			trip = new Trip(null, null, null, null, null);
+			trip = new Trip(null, null);
 			
 			//NavigationDrawerHelper.Initialise(this, R.id.left_drawer, R.array.maps_page_menu);
 			ListView mDrawerList = (ListView) this.findViewById(R.id.left_drawer);
@@ -170,6 +173,7 @@ public class MapsPage extends Activity {
 				
 		lv = (ListView)findViewById(R.id.right_drawer);
 		arrayAdapter = new ArrayAdapter<Place>(this,android.R.layout.simple_list_item_1, placeNames);
+		lvLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		lv.setAdapter(arrayAdapter);
 		lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 		//lv.setOnItemClickListener(new DrawerItemClickListener());
@@ -180,11 +184,11 @@ public class MapsPage extends Activity {
 				public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
 					try{
 						Place selected = placeNames.get(position);
-						map.addPlace(selected);
+						trip.pitStops.add(selected);
 						lv.setItemChecked(position, true);
-						//lvLayout.closeDrawer(lv);
+						lvLayout.closeDrawer(lv);
 						((BaseAdapter) arg0.getAdapter()).notifyDataSetChanged();
-						
+						new HttpRequestAsync().execute(trip);
 					}
 					catch(Exception e){
 					MessageBoxHelper.showMessageBox(mPage, e.getMessage());
@@ -232,7 +236,8 @@ public class MapsPage extends Activity {
 	        
 	        if(result != null){
 	        	map.drawTrip(result);
-	        	new GetPlacesAsync().execute(result.getTrimmedPoints(1));
+	        	if(finalPlaces == null)
+	        		new GetPlacesAsync().execute(result.getTrimmedPoints(1));
 	        }
 	    }
 	}
@@ -247,7 +252,7 @@ public class MapsPage extends Activity {
 		@Override
 		protected HashMap<String,Place> doInBackground(ArrayList<LatLng>... arg0) {
 
-			HashMap<String, Place> finalPlaces = new HashMap<String, Place>();
+			finalPlaces = new HashMap<String, Place>();
 			ArrayList<Place> places;
 			
 			for (ArrayList<LatLng> listLocation : arg0) {

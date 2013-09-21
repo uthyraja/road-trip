@@ -1,14 +1,8 @@
 package nz.ac.waikato.cs.roadtrip.models;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONObject;
 
 import android.graphics.Color;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -31,18 +25,17 @@ public class Trip{
     
     public ArrayList<Leg> legs = new ArrayList<Leg>();
     
+    public ArrayList<Place> pitStops = new ArrayList<Place>();
+    
     public ArrayList<LatLng> points;
     
     public ArrayList<LatLng> trimedPoints = new ArrayList<LatLng>();
 	public String end_address;
 	public String start_address;
 
-    public Trip(Point start, Point end, String distance, String duration, ArrayList<Leg> pitstops){
+    public Trip(Point start, Point end){
         this.start = start;
         this.end = end;
-        this.legs = pitstops;
-        this.distance = distance;
-        this.duration = duration;
     }
 
 	public Trip() {
@@ -59,6 +52,15 @@ public class Trip{
 	public ArrayList<LatLng> getTrimmedPoints(int radius){
 		LatLng currentPoint = points.get(0);
 		trimedPoints.add(points.get(0));
+		
+		/* only checks every third point to try save time - didnt seem to save much time so keep old loop
+		 * for(int i = 0; i < points.size(); i=i+3){
+			LatLng point = points.get(i);
+			if(calcDistance(currentPoint, point) >= radius){
+				trimedPoints.add(point);
+				currentPoint = point;
+			}
+		}*/
 		
 		for(LatLng point : points){
 			if(calcDistance(currentPoint, point) >= radius){
@@ -107,11 +109,24 @@ public class Trip{
 		
 		String baseURI = "http://maps.googleapis.com/maps/api/directions/json?";
 		String parameters;
-		if(start_address == null || start_address.equalsIgnoreCase("current Location"))
-			parameters = String.format("origin=%s&destination=%s&sensor=true", this.start.getFormattedPoint(), this.end_address);
-		else 
-			parameters = String.format("origin=%s&destination=%s&sensor=true", this.start_address, this.end_address);
+		String allPitStops = ""; 
 		
+		if(pitStops.size() != 0){
+
+			for(Place place : pitStops){
+				allPitStops = allPitStops + place.location.getFormattedPoint() + "%7C";
+			}
+			allPitStops = allPitStops.substring(0, allPitStops.length() - 3);
+			
+			parameters = String.format("origin=%s&destination=%s&waypoints=optimize:true", this.start.getFormattedPoint(),this.end_address);
+			parameters = parameters + "%7C" + allPitStops + "&sensor=true";
+		}
+		else{
+			if(start_address == null || start_address.equalsIgnoreCase("current Location"))
+				parameters = String.format("origin=%s&destination=%s&sensor=true", this.start.getFormattedPoint(), this.end_address);
+			else 
+				parameters = String.format("origin=%s&destination=%s&sensor=true", this.start_address, this.end_address);
+		}
 		String fullURI = (baseURI + parameters).replace(" ", "%20");
 		
 		return fullURI;
