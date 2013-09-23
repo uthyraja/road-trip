@@ -95,7 +95,8 @@ public class MapsPage extends Activity {
 						Class newActivity = list.get(arg2);
 						
 						//NavigationHelper.goTo(current, newActivity);
-						trip.start = map.getCurrentPossition();
+						trip = new Trip();
+						trip.setStart(map.getCurrentPossition());
 						
 						Intent intent = new Intent(mPage, newActivity);
 						intent.putExtra("trip", trip.getSerializable());
@@ -120,14 +121,14 @@ public class MapsPage extends Activity {
 						try {
 							hideKeyboard();
 							
-							trip.start = map.getCurrentPossition();
-							trip.end_address = textMessage.getText().toString() + ", New Zealand";
-							trip.radius = 1000;
-							trip.tripCategories = new TripCategories(true, true, true, true, true);
+							trip = new Trip();
+							trip.setStart(map.getCurrentPossition());
+							trip.setEndAddress(textMessage.getText().toString() + ", New Zealand");
+							trip.setRaduis(1000);
+							trip.setCategories(new TripCategories(true));
 							
 							new HttpRequestAsync().execute(trip);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 							System.err.println(e.getMessage());
 						}
@@ -184,7 +185,7 @@ public class MapsPage extends Activity {
 				public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
 					try{
 						Place selected = placeNames.get(position);
-						trip.pitStops.add(selected);
+						trip.addPitstop(selected);
 						lv.setItemChecked(position, true);
 						lvLayout.closeDrawer(lv);
 						((BaseAdapter) arg0.getAdapter()).notifyDataSetChanged();
@@ -229,45 +230,28 @@ public class MapsPage extends Activity {
 	        return s.hasNext() ? s.next() : "";
 	    }
 
-	    @SuppressWarnings("unchecked")
-		@Override
+	    @Override
 	    protected void onPostExecute(Trip result) {
 	        super.onPostExecute(result);
 	        
 	        if(result != null){
-	        	map.drawTrip(result);
-	        	if(finalPlaces == null)
-	        		new GetPlacesAsync().execute(result.getTrimmedPoints(1));
+	        	trip = result;
+	        	map.drawTrip(trip);
+	        	new GetPlacesAsync().execute(trip);
 	        }
 	    }
 	}
-	private class GetPlacesAsync extends AsyncTask<ArrayList<LatLng>, String, HashMap<String,Place>>{
-
-		private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
-		private static final String TYPE_SEARCH = "/search";
-		private static final String OUT_JSON = "/json";
-		private static final String API_KEY = "AIzaSyBtffHwqCLotld7p15WG8JcGXkrVzratL4";
-		private double radius = 1000;
-		
+	private class GetPlacesAsync extends AsyncTask<Trip, String, HashMap<String,Place>>{
 		@Override
-		protected HashMap<String,Place> doInBackground(ArrayList<LatLng>... arg0) {
-
+		protected HashMap<String,Place> doInBackground(Trip... arg0) {
 			finalPlaces = new HashMap<String, Place>();
-			ArrayList<Place> places;
+			Trip currentTrip = arg0[0];
 			
-			for (ArrayList<LatLng> listLocation : arg0) {
-				
-				for (LatLng location : listLocation){
-					
-					//build url
-					StringBuilder sb = new StringBuilder(PLACES_API_BASE + TYPE_SEARCH + OUT_JSON);
-			        sb.append("?location=" + location.latitude + "," + location.longitude + "&radius=" + radius + "&sensor=false&key=" + API_KEY);
-			        //sb.append("&input=" + URLEncoder.encode(input, "utf8"));
-			       
+				for (String httpRequest : currentTrip.getGooglePlacesHttpRequests()){
 					try {
 						
 						//try to fetch the data
-						HttpGet connection = new HttpGet(sb.toString());
+						HttpGet connection = new HttpGet(httpRequest);
 						HttpClient client = new DefaultHttpClient();
 				        HttpResponse response = client.execute(connection);
 				        int status = response.getStatusLine().getStatusCode();
@@ -275,17 +259,15 @@ public class MapsPage extends Activity {
 						//only carry on if response is OK
 						if(status == HttpStatus.SC_OK){
 				        	JSONObject mainObject = new JSONObject(convertStreamToString(response.getEntity().getContent()));
-				        	places = PlaceController.newPlaceList(mainObject);
+				        	ArrayList<Place> places = PlaceController.newPlaceList(mainObject);
 				        	for(Place place : places){
 				        		finalPlaces.put(place.id, place);
 				        	}
-				        	
 				        }
 					}
 					catch(Exception e){ 
 						e.printStackTrace(); 
 					}
-				}
 			}
 			return finalPlaces;
 		}
@@ -300,7 +282,6 @@ public class MapsPage extends Activity {
 	        super.onPostExecute(result);
 	        
 	        if(result != null){
-	        	//map.drawPlaces(result);
 	        	displayPlaceList(result);
 	        }
 	    }

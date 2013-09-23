@@ -79,15 +79,12 @@ public class MapsController {
 
 	public void drawTrip(Trip trip) {
 		map.clear();
-		map.addPolyline(trip.polylineOptions);
-		addMarker(trip.start, "Origin");
-		addMarker(trip.end, "Destination");
-		drawPlacesArray(trip.pitStops);
+		map.addPolyline(trip.GetPolylineOptions());
+		addMarker(trip.getStart(), "Origin");
+		addMarker(trip.getEnd(), "Destination");
+		drawPlacesArray(trip.getPitStops());
 		
-		//zoomToFit();
-		LatLng ne= new LatLng(trip.northEast.getLatitude(), trip.northEast.getLongitude());
-		LatLng sw= new LatLng(trip.southWest.getLatitude(), trip.southWest.getLongitude());
-		map.animateCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(sw,ne), 100));
+		map.animateCamera(CameraUpdateFactory.newLatLngBounds(trip.getMapBounds(), 100));//new LatLngBounds(sw,ne), 100));
 	}
 
 	public void addMarker(Point point, String title) {

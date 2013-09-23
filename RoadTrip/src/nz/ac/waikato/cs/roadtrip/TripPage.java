@@ -1,5 +1,10 @@
 package nz.ac.waikato.cs.roadtrip;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import nz.ac.waikato.cs.roadtrip.adapters.PlaceType;
+import nz.ac.waikato.cs.roadtrip.adapters.PlaceTypeAdapter;
 import nz.ac.waikato.cs.roadtrip.helpers.MessageBoxHelper;
 import nz.ac.waikato.cs.roadtrip.models.SerializableTrip;
 import nz.ac.waikato.cs.roadtrip.models.Trip;
@@ -10,18 +15,22 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.support.v4.app.NavUtils;
 
 public class TripPage extends Activity {
 
-	SerializableTrip newTrip;
+	private SerializableTrip newTrip;
+	private PlaceTypeAdapter placeTypeAdapter; 
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		try{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_trip_page);
 		// Show the Up button in the action bar.
@@ -32,6 +41,24 @@ public class TripPage extends Activity {
 		    newTrip = (SerializableTrip) b.getSerializable("trip");
 		
 		setOriginEditText();
+		setListView();
+		}
+		catch(Exception e){
+			MessageBoxHelper.showMessageBox(this, e.getMessage());
+		}
+	}
+
+	private void setListView() throws Exception{
+		String[] sTypes = getResources().getStringArray(R.array.place_types);
+		ArrayList<PlaceType> types = new ArrayList<PlaceType>();
+		
+		for(String p : sTypes){
+			types.add(new PlaceType(p));
+		}
+			
+		ListView lv = (ListView)findViewById(R.id.listViewPlaceTypes);
+	    placeTypeAdapter = new PlaceTypeAdapter(this, types);
+	    lv.setAdapter(placeTypeAdapter);
 	}
 
 	private void setOriginEditText() {
@@ -81,15 +108,9 @@ public class TripPage extends Activity {
 			EditText origin = (EditText)findViewById(R.id.editTextOrigin);
 			EditText destination = (EditText)findViewById(R.id.editTextDestination);
 			
-			CheckBox cbAcc = (CheckBox)findViewById(R.id.cbAccomodation);
-			CheckBox cbEnt = (CheckBox)findViewById(R.id.cbEntertainment);
-			CheckBox cbFood = (CheckBox)findViewById(R.id.cbFood);
-			CheckBox cbLand = (CheckBox)findViewById(R.id.cbLandmarks);
-			CheckBox cbWalks = (CheckBox)findViewById(R.id.cbWalks);
-			
 			Spinner spin = (Spinner)findViewById(R.id.spinnerRadius);
 			
-			newTrip.tripCategories = new TripCategories(cbAcc.isChecked(), cbEnt.isChecked(), cbFood.isChecked(), cbLand.isChecked(), cbWalks.isChecked());
+			newTrip.setTripCategories(placeTypeAdapter.getPlaceTypes());
 			newTrip.setEnd(destination.getText().toString() + ", New Zealand");
 			newTrip.setRaduis(getRadiusFromId(spin.getSelectedItemId()));
 			
