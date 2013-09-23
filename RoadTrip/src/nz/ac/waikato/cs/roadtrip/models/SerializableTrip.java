@@ -53,4 +53,8 @@ import java.io.Serializable;
 			// TODO Auto-generated method stub
 			return tripCategories;
 		}
+
+		public void setTripCategories(TripCategories placeTypes) {
+			tripCategories = placeTypes;
+		}
 	}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import android.graphics.Color;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 
@@ -13,25 +14,24 @@ public class Trip{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public Point start;
-    public Point end;
-    public String distance;
-    public String duration;
-    public PolylineOptions polylineOptions;
-    public Point northEast;
-    public Point southWest;
-    public TripCategories tripCategories;
-    public double radius;
+	private Point start;
+    private Point end;
+    private String distance;
+    private String duration;
+    private PolylineOptions polylineOptions;
+    private Point northEast;
+    private Point southWest;
+    private TripCategories tripCategories;
+    private double radius;
     
-    public ArrayList<Leg> legs = new ArrayList<Leg>();
+    private ArrayList<Leg> legs = new ArrayList<Leg>();
     
-    public ArrayList<Place> pitStops = new ArrayList<Place>();
+    private ArrayList<Place> pitStops = new ArrayList<Place>();
     
-    public ArrayList<LatLng> points;
+    private ArrayList<Point> points;
     
-    public ArrayList<LatLng> trimedPoints = new ArrayList<LatLng>();
-	public String end_address;
-	public String start_address;
+    private String end_address;
+    private String start_address;
 
     public Trip(Point start, Point end){
         this.start = start;
@@ -49,49 +49,21 @@ public class Trip{
 	}
 
 	//reduces the size of points to contain a point at a set distance
-	public ArrayList<LatLng> getTrimmedPoints(int radius){
-		LatLng currentPoint = points.get(0);
-		trimedPoints.add(points.get(0));
+	public ArrayList<Point> getTrimmedPoints(){
 		
-		/* only checks every third point to try save time - didnt seem to save much time so keep old loop
-		 * for(int i = 0; i < points.size(); i=i+3){
-			LatLng point = points.get(i);
-			if(calcDistance(currentPoint, point) >= radius){
-				trimedPoints.add(point);
-				currentPoint = point;
-			}
-		}*/
+		Point currentPoint = points.get(0);
+	    ArrayList<Point> trimedPoints = new ArrayList<Point>();
+		trimedPoints.add(currentPoint);
 		
-		for(LatLng point : points){
-			if(calcDistance(currentPoint, point) >= radius){
+		for(Point point : points){
+			if(currentPoint.distanceBetween(point) >= radius){
 				trimedPoints.add(point);
 				currentPoint = point;
 			}
 		}
+		
 		return trimedPoints;
 	}
-	
-	//calculates the distance between two giving latlng points in kilometers
-	public double calcDistance(LatLng a, LatLng b){
-		double varible = a.longitude - b.longitude;
-		double distance = Math.sin(deg2rad(a.latitude)) * Math.sin(deg2rad(b.latitude)) + Math.cos(deg2rad(a.latitude)) * Math.cos(deg2rad(b.latitude)) * Math.cos(deg2rad(varible));
-		distance = Math.acos(distance);
-		distance = rad2deg(distance);
-		distance = distance * 60 * 1.1515;
-		distance = distance * 1.609344;
-		
-		return distance;
-	}
-	
-	//converts radians to degrees
-    private double rad2deg(double rad) {
-        return (rad * 180.0 / Math.PI);
-    }
-    
-    //converts degrees to radians 
-    private double deg2rad(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
 
 	public boolean hasStart() {
 		return start != null;
@@ -108,28 +80,37 @@ public class Trip{
 	public String getGoogleMapsAPIHttpRequest() {
 		
 		String baseURI = "http://maps.googleapis.com/maps/api/directions/json?";
-		String parameters;
-		String allPitStops = ""; 
-		
-		if(pitStops.size() != 0){
-
-			for(Place place : pitStops){
-				allPitStops = allPitStops + place.location.getFormattedPoint() + "%7C";
-			}
-			allPitStops = allPitStops.substring(0, allPitStops.length() - 3);
-			
-			parameters = String.format("origin=%s&destination=%s&waypoints=optimize:true", this.start.getFormattedPoint(),this.end_address);
-			parameters = parameters + "%7C" + allPitStops + "&sensor=true";
-		}
-		else{
-			if(start_address == null || start_address.equalsIgnoreCase("current Location"))
-				parameters = String.format("origin=%s&destination=%s&sensor=true", this.start.getFormattedPoint(), this.end_address);
-			else 
-				parameters = String.format("origin=%s&destination=%s&sensor=true", this.start_address, this.end_address);
-		}
+		String parameters = String.format("%s%s%s&sensor=false", getOriginUri(), getDestinationUri(), getWayPointsUri());
 		String fullURI = (baseURI + parameters).replace(" ", "%20");
 		
 		return fullURI;
+	}
+
+	private String getWayPointsUri() {
+		if(pitStops == null || pitStops.size() == 0)
+			return "";
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("&waypoints=optimize:false%7c");
+		
+		for(int i = 0; i < pitStops.size(); i++){
+			sb.append(pitStops.get(i));
+			if(i != pitStops.size() - 1)
+				sb.append("%7c");
+		}
+		
+		return sb.toString();
+	}
+
+	private String getDestinationUri() {
+		// TODO Auto-generated method stub
+		return String.format("&destination=%s", end_address);
+	}
+
+	private String getOriginUri() {
+		if(start_address == null || start_address.equalsIgnoreCase("current Location"))
+			return String.format("origin=%s", start.getFormattedPoint());
+		return String.format("origin=%s", start_address);
 	}
 
 	public void analizeJSON(String mainObject) throws Exception{
@@ -141,18 +122,28 @@ public class Trip{
 		this.northEast = responce.routes[0].bounds.northeast;
 		this.southWest = responce.routes[0].bounds.southwest;
 		this.legs = responce.routes[0].legs[0].stepsToList();
-		this.points = responce.routes[0].overview_polyline.decodePoly();
 		this.end = responce.routes[0].legs[0].end_location;
 		this.start = responce.routes[0].legs[0].start_location;
 		this.start_address = responce.routes[0].legs[0].start_address;
 		this.end_address = responce.routes[0].legs[0].end_address;
 		
+		ArrayList<LatLng> llList = responce.routes[0].overview_polyline.decodePoly();
+		
+		this.points = latLngToPoints(llList);
 		this.polylineOptions = new PolylineOptions()
         	.width(10)
         	.color(Color.argb(255, 30, 144, 255))
         	.geodesic(true)
-        	.addAll(this.points);
+        	.addAll(llList);
+	}
+
+	private ArrayList<Point> latLngToPoints(ArrayList<LatLng> decodePoly) {
+		ArrayList<Point> pList = new ArrayList<Point>();
 		
+		for(LatLng ll : decodePoly)
+			pList.add(new Point(ll.latitude, ll.longitude));
+		
+		return pList;
 	}
 
 	public void deserializeTrip(SerializableTrip st) {
@@ -161,4 +152,64 @@ public class Trip{
 		this.radius = st.getRadius();
 		this.tripCategories = st.getCategories();
 	}
+
+	public ArrayList<String> getGooglePlacesHttpRequests() {
+
+		String baseUri = "https://maps.googleapis.com/maps/api/place/search/json?";
+		String apiKey = "AIzaSyBtffHwqCLotld7p15WG8JcGXkrVzratL4";
+		ArrayList<String> requests = new ArrayList<String>();
+		
+		for (Point location : getTrimmedPoints()){
+			String request = String.format("%slocation=%s&radius=%s&sensor=false&key=%s%s", baseUri, location.getFormattedPoint(), radius, apiKey, tripCategories.getParamURI());
+			requests.add(request.replace(" ", "%20"));
+		}
+		
+		return requests;
+	}
+
+	public void addPitstop(Place selected) {
+		pitStops.add(selected);
+	}
+
+	public void setStart(Point currentPossition) {
+		this.start = currentPossition;
+	}
+
+	public void setEndAddress(String string) {
+		this.end_address = string;
+	}
+
+	public void setRaduis(int i) {
+		this.radius = i;
+	}
+
+	public void setCategories(TripCategories tripCategories) {
+		this.tripCategories = tripCategories;
+	}
+
+	public PolylineOptions GetPolylineOptions() {
+		// TODO Auto-generated method stub
+		return polylineOptions;
+	}
+
+	public Point getStart() {
+		// TODO Auto-generated method stub
+		return start;
+	}
+
+	public Point getEnd() {
+		// TODO Auto-generated method stub
+		return end;
+	}
+
+	public ArrayList<Place> getPitStops() {
+		// TODO Auto-generated method stub
+		return pitStops;
+	}
+
+	public LatLngBounds getMapBounds() {
+		// TODO Auto-generated method stub
+		return new LatLngBounds(southWest.toLatLng(), northEast.toLatLng());
+	}
 }
+	
