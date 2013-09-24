@@ -11,7 +11,7 @@
     <item android:id="@+id/search_action"
           android:title="@string/search_title"
           android:icon="@drawable/ic_search"
-          android:showAsAction="collapseActionView|ifRoom"
+          android:showAsAction="always"
           android:actionViewClass="android.widget.SearchView"
-          android:queryHint="Searhc"/>
+          android:queryHint="Search"/>
 </menu>
