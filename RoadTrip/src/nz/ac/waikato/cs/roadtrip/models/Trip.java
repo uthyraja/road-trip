@@ -56,7 +56,9 @@ public class Trip{
 		trimedPoints.add(currentPoint);
 		
 		for(Point point : points){
-			if(currentPoint.distanceBetween(point) >= radius){
+			double i = currentPoint.distanceBetween(point);
+			
+			if(i >= radius/1000){
 				trimedPoints.add(point);
 				currentPoint = point;
 			}
@@ -122,8 +124,12 @@ public class Trip{
 		this.northEast = responce.routes[0].bounds.northeast;
 		this.southWest = responce.routes[0].bounds.southwest;
 		this.legs = responce.routes[0].legs[0].stepsToList();
-		this.end = responce.routes[0].legs[0].end_location;
-		this.start = responce.routes[0].legs[0].start_location;
+		
+		if(end == null)
+			this.end = responce.routes[0].legs[0].end_location;
+		if(start == null)
+			this.start = responce.routes[0].legs[0].start_location;
+		
 		this.start_address = responce.routes[0].legs[0].start_address;
 		this.end_address = responce.routes[0].legs[0].end_address;
 		
