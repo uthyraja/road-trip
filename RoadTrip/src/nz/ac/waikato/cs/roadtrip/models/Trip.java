@@ -94,7 +94,7 @@ public class Trip{
 		sb.append("&waypoints=optimize:false%7c");
 		
 		for(int i = 0; i < pitStops.size(); i++){
-			sb.append(pitStops.get(i));
+			sb.append(pitStops.get(i).location.getFormattedPoint());
 			if(i != pitStops.size() - 1)
 				sb.append("%7c");
 		}
