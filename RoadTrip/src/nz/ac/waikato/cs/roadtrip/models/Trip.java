@@ -66,6 +66,8 @@ public class Trip{
 		
 		return trimedPoints;
 	}
+	
+	
 
 	public boolean hasStart() {
 		return start != null;
@@ -93,7 +95,7 @@ public class Trip{
 			return "";
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("&waypoints=optimize:false%7c");
+		sb.append("&waypoints=optimize:true%7c");
 		
 		for(int i = 0; i < pitStops.size(); i++){
 			sb.append(pitStops.get(i).location.getFormattedPoint());
@@ -105,14 +107,20 @@ public class Trip{
 	}
 
 	private String getDestinationUri() {
-		// TODO Auto-generated method stub
+		if(end != null)
+			return String.format("&destination=%s", end.getFormattedPoint());
 		return String.format("&destination=%s", end_address);
 	}
 
 	private String getOriginUri() {
-		if(start_address == null || start_address.equalsIgnoreCase("current Location"))
+		if(start != null)
 			return String.format("origin=%s", start.getFormattedPoint());
 		return String.format("origin=%s", start_address);
+		
+		
+		//if(start_address == null || start_address.equalsIgnoreCase("current Location"))
+		//	return String.format("origin=%s", start.getFormattedPoint());
+		//return String.format("origin=%s", start_address);
 	}
 
 	public void analizeJSON(String mainObject) throws Exception{
@@ -174,7 +182,14 @@ public class Trip{
 	}
 
 	public void addPitstop(Place selected) {
-		pitStops.add(selected);
+		boolean exists = false;
+		
+		for(Place p : pitStops)
+			if(p.id.equalsIgnoreCase(selected.id))
+				exists = true;
+		
+		if(!exists)
+			pitStops.add(selected);
 	}
 
 	public void setStart(Point currentPossition) {
@@ -216,6 +231,20 @@ public class Trip{
 	public LatLngBounds getMapBounds() {
 		// TODO Auto-generated method stub
 		return new LatLngBounds(southWest.toLatLng(), northEast.toLatLng());
+	}
+
+	public void removePitstop(Place element) {
+		int exists = -1;
+    	
+    	for(int i = 0; i< pitStops.size(); i++){
+    		Place p = pitStops.get(i);
+    		
+    		if(p.id.equalsIgnoreCase(element.id))
+    			exists = i;
+    	}
+    	
+    	if(exists!= -1)
+    		pitStops.remove(exists);
 	}
 }
 	

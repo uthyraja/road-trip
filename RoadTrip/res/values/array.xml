@@ -5,7 +5,7 @@
         <item>Settings</item>
     </string-array>
     
-    <string-array name="radius">
+    <!--string-array name="radius">
         <item>0.5 km</item>
         <item>1 km</item>
         <item>1.5 km</item>
@@ -17,6 +17,11 @@
         <item>4.5 km</item>
         <item>5 km</item>
         <item>5.5 km</item>
+    </string-array-->
+    
+    <string-array name="radius">
+        <item>Less than 1km</item>
+        <item>Less than 5km</item>
     </string-array>
     
     <string-array name="place_types">
