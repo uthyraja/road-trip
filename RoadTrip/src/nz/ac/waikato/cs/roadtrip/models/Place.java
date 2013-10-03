@@ -28,6 +28,10 @@ public class Place {
 		
 	}
 	
+	public String getFormattedDistance(){
+		return vicinity;
+	}
+	
 	@Override
     public String toString() {
         return this.name;

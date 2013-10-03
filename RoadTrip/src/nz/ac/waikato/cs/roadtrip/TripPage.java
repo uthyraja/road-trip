@@ -11,16 +11,21 @@ import nz.ac.waikato.cs.roadtrip.models.Trip;
 import nz.ac.waikato.cs.roadtrip.models.TripCategories;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.support.v4.app.NavUtils;
 
 public class TripPage extends Activity {
@@ -42,10 +47,47 @@ public class TripPage extends Activity {
 		
 		setOriginEditText();
 		setListView();
+		setOnTouchListener(findViewById(R.id.rlMain));
+		
+		EditText et = (EditText)findViewById(R.id.editTextDestination);
+		et.setFocusableInTouchMode(true);
+		et.requestFocus();
+		
 		}
 		catch(Exception e){
 			MessageBoxHelper.showMessageBox(this, e.getMessage());
 		}
+	}
+
+	private void setOnTouchListener(View view) {
+		if(view.getId() != R.id.editTextDestination && view.getId() != R.id.editTextOrigin)
+		{
+			view.setOnTouchListener(new OnTouchListener() {
+			
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					hideKeyboard();
+					return false;
+				}
+			});
+			
+			
+		}
+		if(	!(view instanceof EditText)
+		 && !(view instanceof TextView)
+				){
+			android.view.ViewGroup inner = (android.view.ViewGroup)view;
+			
+			for(int i = 0; i < inner.getChildCount(); i++){
+				setOnTouchListener(inner.getChildAt(i));
+			}
+		}
+	}
+	
+	protected void hideKeyboard() {
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
 	}
 
 	private void setListView() throws Exception{
@@ -135,7 +177,10 @@ public class TripPage extends Activity {
 	}
 
 	private double getRadiusFromId(long selectedItemId) {
-		return (selectedItemId + 1) * 500;
+		if(selectedItemId == 0)
+			return 1000;
+		return 5500;
+		//return selectedItemId;//(selectedItemId + 1) * 500;
 	}
 
 	private boolean allControlValuesAreNotNullAndValid() {

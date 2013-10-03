@@ -2,6 +2,7 @@ package nz.ac.waikato.cs.roadtrip;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,6 +15,8 @@ import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import nz.ac.waikato.cs.roadtrip.adapters.PlaceAdapter;
+import nz.ac.waikato.cs.roadtrip.adapters.PlaceTypeAdapter;
 import nz.ac.waikato.cs.roadtrip.controllers.MapsController;
 import nz.ac.waikato.cs.roadtrip.controllers.PlaceController;
 import nz.ac.waikato.cs.roadtrip.factories.ActivityFactory;
@@ -29,6 +32,7 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,16 +47,16 @@ import android.widget.ListView;
 
 public class MapsPage extends Activity {
 
-	MapsController map;
-	MapsPage mPage;
-	Trip trip;
+	public MapsController map;
+	private MapsPage mPage;
+	public Trip trip;
+	public DrawerLayout mDrawerLayout;
 	
-	ListView lv;
-	DrawerLayout lvLayout;
-	ArrayAdapter<Place> arrayAdapter;
 	ArrayList<Place> placeNames;
 	
 	HashMap<String, Place> finalPlaces;
+	
+	public PlaceAdapter placeAdapter; 
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +72,7 @@ public class MapsPage extends Activity {
 	}
 
 	protected void hideKeyboard() {
-		InputMethodManager imm = (InputMethodManager)getSystemService(
-			      Context.INPUT_METHOD_SERVICE);
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(((EditText)findViewById(R.id.text_box_search)).getWindowToken(), 0);
 	}
 
@@ -81,10 +84,8 @@ public class MapsPage extends Activity {
 			//NavigationDrawerHelper.Initialise(this, R.id.left_drawer, R.array.maps_page_menu);
 			ListView mDrawerList = (ListView) this.findViewById(R.id.left_drawer);
 	        String[] list = this.getResources().getStringArray(R.array.maps_page_menu);
-	        
 	        // Set the adapter for the list view
 	        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
-	        
 	        // Set the left drawer list's click listener
 	        mDrawerList.setOnItemClickListener(new OnItemClickListener(){
 
@@ -106,8 +107,16 @@ public class MapsPage extends Activity {
 						MessageBoxHelper.showMessageBox(mPage, e.getMessage());
 					}
 				}
-	        	
 	        });
+	        
+	      //NavigationDrawerHelper.Initialise(this, R.id.left_drawer, R.array.maps_page_menu);
+			ListView rightDrawerList = (ListView) this.findViewById(R.id.right_drawer);
+	        // Set the adapter for the list view
+			
+			
+			mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+		    
+	        rightDrawerList.setAdapter(new PlaceAdapter(this, new ArrayList<Place>()));
 	        
 	        //listens for the return button being pressed for the search text box
 	        EditText textMessage = (EditText)findViewById(R.id.text_box_search);
@@ -124,10 +133,12 @@ public class MapsPage extends Activity {
 							trip = new Trip();
 							trip.setStart(map.getCurrentPossition());
 							trip.setEndAddress(textMessage.getText().toString() + ", New Zealand");
-							trip.setRaduis(1000);
+							trip.setRaduis(5500);
 							trip.setCategories(new TripCategories(true));
+							ListView rightDrawerList = (ListView) mPage.findViewById(R.id.right_drawer);
+							rightDrawerList.setAdapter(new PlaceAdapter(mPage, new ArrayList<Place>()));
 							
-							new HttpRequestAsync().execute(trip);
+							getTripFromGoogleApi();
 						} catch (Exception e) {
 							e.printStackTrace();
 							System.err.println(e.getMessage());
@@ -145,10 +156,18 @@ public class MapsPage extends Activity {
 	     {
 	         if (resultCode == RESULT_OK)
 	         {
+	        	 ArrayAdapter<Place> arrayAdapter = 
+		        			new ArrayAdapter<Place>(mPage,android.R.layout.simple_list_item_1, new ArrayList<Place>());
+		    		((ListView)findViewById(R.id.right_drawer)).setAdapter(arrayAdapter);
+		    		
 	        	 SerializableTrip st = (SerializableTrip) intent.getSerializableExtra("trip");
 	             trip.deserializeTrip(st);
 	             
-	             new HttpRequestAsync().execute(trip);
+
+					ListView rightDrawerList = (ListView) mPage.findViewById(R.id.right_drawer);
+					rightDrawerList.setAdapter(new PlaceAdapter(mPage, new ArrayList<Place>()));
+	             
+	             getTripFromGoogleApi();
 	         }
 	     }
 	 }
@@ -165,40 +184,11 @@ public class MapsPage extends Activity {
 		return true;
 	}
 	
-	public void displayPlaceList(HashMap<String, Place> finalPlaces){
-		
-		placeNames = new ArrayList<Place>();
-		for(Place p : finalPlaces.values()){
-			placeNames.add(p);
-		}
-				
-		lv = (ListView)findViewById(R.id.right_drawer);
-		arrayAdapter = new ArrayAdapter<Place>(this,android.R.layout.simple_list_item_1, placeNames);
-		lvLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		lv.setAdapter(arrayAdapter);
-		lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-		//lv.setOnItemClickListener(new DrawerItemClickListener());
-		
-		lv.setOnItemClickListener(new OnItemClickListener(){
-
-			@Override
-				public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
-					try{
-						Place selected = placeNames.get(position);
-						trip.addPitstop(selected);
-						lv.setItemChecked(position, true);
-						lvLayout.closeDrawer(lv);
-						((BaseAdapter) arg0.getAdapter()).notifyDataSetChanged();
-						new HttpRequestAsync().execute(trip);
-					}
-					catch(Exception e){
-					MessageBoxHelper.showMessageBox(mPage, e.getMessage());
-				}
-			}
-		});
+	public void getTripFromGoogleApi(){
+		new HttpRequestAsync().execute(trip);
 	}
 	
-	private class HttpRequestAsync extends AsyncTask<Trip, String, Trip>{
+	public class HttpRequestAsync extends AsyncTask<Trip, String, Trip>{
 
 	    @Override
 	    protected Trip doInBackground(Trip... uri) {
@@ -237,7 +227,9 @@ public class MapsPage extends Activity {
 	        if(result != null){
 	        	trip = result;
 	        	map.drawTrip(trip);
-	        	new GetPlacesAsync().execute(trip);
+	        	ListView lv = (ListView)findViewById(R.id.right_drawer);
+	        	if(lv.getCount() == 0)
+	        		new GetPlacesAsync().execute(trip);
 	        }
 	    }
 	}
@@ -280,9 +272,16 @@ public class MapsPage extends Activity {
 	    @Override
 	    protected void onPostExecute(HashMap<String,Place> result) {
 	        super.onPostExecute(result);
-	        
+	        try{
 	        if(result != null){
-	        	displayPlaceList(result);
+	        	ArrayList<Place> list = new ArrayList<Place>();
+	        	list.addAll(result.values());
+	        	
+	    		((ListView)findViewById(R.id.right_drawer)).setAdapter(new PlaceAdapter(mPage, list));    	
+	        }
+	        }
+	        catch(Exception e){
+	        	MessageBoxHelper.showMessageBox(mPage, e.getMessage());
 	        }
 	    }
 	}

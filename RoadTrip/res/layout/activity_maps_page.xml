@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <AbsoluteLayout 
-	android:layout_width="fill_parent" 
+    <RelativeLayout 
+	android:layout_width="match_parent" 
 	android:layout_height="fill_parent" 
 	xmlns:android="http://schemas.android.com/apk/res/android">
         
@@ -17,17 +17,17 @@
     
     <EditText
         android:id="@+id/text_box_search"
-    	android:layout_x="0px"
-    	android:layout_y="0px"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="20dp"
+        android:layout_height="40dp"
+        android:layout_marginRight="70dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:padding="10dp"
+        android:background="#aa7a7a7a"
         android:hint="Search..." />
         
     
-    </AbsoluteLayout>
+    </RelativeLayout>
     
     <!-- The menu drawer -->
     <ListView android:id="@+id/left_drawer"

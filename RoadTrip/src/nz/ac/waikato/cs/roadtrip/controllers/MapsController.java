@@ -16,6 +16,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
@@ -84,6 +85,10 @@ public class MapsController {
 		addMarker(trip.getEnd(), "Destination");
 		drawPlacesArray(trip.getPitStops());
 		
+		animateToTrip(trip);
+	}
+	
+	public void animateToTrip(Trip trip) {
 		map.animateCamera(CameraUpdateFactory.newLatLngBounds(trip.getMapBounds(), 100));//new LatLngBounds(sw,ne), 100));
 	}
 
@@ -93,8 +98,8 @@ public class MapsController {
 			.title(title));
 	}
 	
-	public void addPlace(Place place) {
-		map.addMarker(new MarkerOptions()
+	public Marker addPlace(Place place) {
+		return map.addMarker(new MarkerOptions()
 			.position(new LatLng(place.location.getLatitude(), place.location.getLongitude()))
 			.title(place.name)
 			.snippet(place.vicinity)
@@ -118,5 +123,17 @@ public class MapsController {
 			.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
 		}
 
+	}
+
+	public Marker addPlace_Move(Place place) throws Exception {
+		Marker marker = map.addMarker(new MarkerOptions()
+		.position(new LatLng(place.location.getLatitude(), place.location.getLongitude()))
+		.title(place.name)
+		.snippet(place.vicinity)
+		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+		
+		animateToPossition(place.location);
+		
+		return marker;
 	}
 }
