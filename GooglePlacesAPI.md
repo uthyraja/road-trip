@@ -1,0 +1,5 @@
+# Google Places #
+
+http://mobile.tutsplus.com/tutorials/android/android-sdk-working-with-google-maps-google-places-integration/
+
+How to guide and source code on integrating google places into google maps android.
